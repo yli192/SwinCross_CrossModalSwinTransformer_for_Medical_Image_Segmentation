@@ -1,7 +1,5 @@
 # Model Overview
-This repository contains the code for UNETR: Transformers for 3D Medical Image Segmentation [1]. UNETR is the first 3D segmentation network that uses a pure vision transformer as its encoder without relying on CNNs for feature extraction.
-The code presents a volumetric (3D) multi-organ segmentation application using the BTCV challenge dataset.
-![image](https://lh3.googleusercontent.com/pw/AM-JKLU2eTW17rYtCmiZP3WWC-U1HCPOHwLe6pxOfJXwv2W-00aHfsNy7jeGV1dwUq0PXFOtkqasQ2Vyhcu6xkKsPzy3wx7O6yGOTJ7ZzA01S6LSh8szbjNLfpbuGgMe6ClpiS61KGvqu71xXFnNcyvJNFjN=w1448-h496-no?authuser=0)
+This repository contains the code for SwinCross: Cross-modal Swin Transformer for 3D Medical Image Segmentation. 
 
 ### Installing Dependencies
 Dependencies can be installed using:
@@ -11,22 +9,32 @@ pip install -r requirements.txt
 
 ### Training
 
-A UNETR network with standard hyper-parameters for the task of multi-organ semantic segmentation (BTCV dataset) can be defined as follows:
+A SwinCross network with standard hyper-parameters for the task of head and neck tumor semantic segmentation (HECTOR dataset) can be defined as follows:
 
 ``` bash
-model = UNETR(
-    in_channels=1,
-    out_channels=14,
-    img_size=(96, 96, 96),
-    feature_size=16,
-    hidden_size=768,
-    mlp_dim=3072,
-    num_heads=12,
-    pos_embed='perceptron',
-    norm_name='instance',
-    conv_block=True,
-    res_block=True,
-    dropout_rate=0.0)
+model = SwinCross(
+    config = ml_collections.ConfigDict()
+    config.if_transskip = True
+    config.if_convskip = True
+    config.patch_size = 2
+    config.in_chans = 2
+    config.embed_dim = 48 
+    config.depths = (2, 4, 2, 2)  
+    config.num_heads = (3, 6, 12, 24)
+    config.window_size = (3, 3, 3)
+    config.mlp_ratio = 4
+    config.pat_merg_rf = 4
+    config.qkv_bias = False
+    config.drop_rate = 0
+    config.drop_path_rate = 0.3
+    config.ape = True
+    config.spe = False
+    config.patch_norm = True
+    config.use_checkpoint = False
+    config.out_indices = (0, 1, 2, 3)
+    config.seg_head_chan = config.embed_dim // 2
+    config.img_size = (96, 96, 96)
+    config.pos_embed_method = 'relative')
 ```
 
 The above UNETR model is used for CT images (1-channel input) and for 14-class segmentation outputs. The network expects
